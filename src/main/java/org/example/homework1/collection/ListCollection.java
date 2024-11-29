@@ -1,7 +1,9 @@
 package org.example.homework1.collection;
 
-import java.util.Comparator;
-
+/*
+ * Интерфейс содержащий основные методы коллекции,
+ * которые необходимо реализовать
+ */
 interface ListCollection<E> {
     void add(E obj);
 
@@ -12,8 +14,6 @@ interface ListCollection<E> {
     E remove(int index);
 
     void clear();
-
-    void sort(Comparator<? super E> comparator);
 
     E set(E obj, int index);
 }

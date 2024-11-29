@@ -1,8 +1,11 @@
 package org.example.homework1.collection;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
+/*
+ * Собственнвеная реализация коллекции ArrayList<E>
+ *
+ */
 public class ArrayListHome<E> implements ListCollection<E> {
     private static final int CAPACITY = 10;
 
@@ -23,6 +26,10 @@ public class ArrayListHome<E> implements ListCollection<E> {
         }
     }
 
+    /*
+     * Добавление элемента в конец масива
+     * Если массив полон, увеличиваем размер его размер
+     */
     @Override
     public void add(E e) {
         if (size == elements.length) {
@@ -32,6 +39,15 @@ public class ArrayListHome<E> implements ListCollection<E> {
         size++;
     }
 
+    /*
+     * Добавление элемента в массив по индексу, при этом
+     * элементы сдвигаются вправо на 1
+     * Выбрасывается исключение, если индекс вне диапазона массива -
+     * IndexOutOfBoundsException
+     *
+     * @param - индекс куда вставляется элемент
+     *        - элемент вставляемый в массив
+     */
     @Override
     public void add(int index, E e) {
         checkIndex(index);
@@ -42,20 +58,26 @@ public class ArrayListHome<E> implements ListCollection<E> {
 
         Object[] elem = new Object[elements.length];
 
-        for (int i = 0; i < index; i++) {
-            elem[i] = elements[i];
-        }
+        if (index >= 0) System.arraycopy(elements, 0, elem, 0, index);
 
         elem[index] = e;
 
-        for (int i = index + 1; i < elements.length; i++) {
-            elem[i] = elements[i - 1];
-        }
+        if (elements.length - (index + 1) >= 0)
+            System.arraycopy(elements, index + 1 - 1, elem, index + 1, elements.length - (index + 1));
 
         size++;
         elements = elem;
     }
 
+    /*
+     * Получить элемент массива по индексу
+     * Выбрасывается исключение, если индекс вне диапазона массива -
+     * IndexOutOfBoundsException
+     *
+     * @param индекс элемента в массиве
+     * @return возврат элемента по индекс
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public E get(int index) {
         checkIndex(index);
@@ -63,45 +85,49 @@ public class ArrayListHome<E> implements ListCollection<E> {
         return (E) elements[index];
     }
 
+    /*
+     * Удалить элемент по индексу
+     * Элемены сдвигаются на один элемент влево
+     * Выбрасывается исключение, если индекс вне диапазона массива -
+     * IndexOutOfBoundsException
+     *
+     * @param - индекс элемента в массиве
+     * @return возврат удаленного элемента
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public E remove(int index) {
         checkIndex(index);
 
         E oldElem = (E) elements[index];
 
-        Object[] elem = new Object[size];
-
-        for (int i = 0; i < index; i++) {
-            elem[i] = elements[i];
+        for (int i = index; i < size - 1; i++) {
+            elements[i] = elements[i + 1];
         }
-
-        for (int i = index ; i < elements.length; i++) {
-            if (i + 1 > size) {
-                break;
-            }
-            elem[i] = elements[i + 1];
-        }
-
-        elements = elem;
+        elements[size - 1] = null;
         size--;
 
         return oldElem;
     }
 
+    /*
+     * Очистка массива
+     * Свободные ячейки заполнятся null
+     */
     @Override
     public void clear() {
-        for (int i = 0; i < elements.length; i++) {
-            elements[i] = null;
-        }
+        Arrays.fill(elements, null);
+        size = 0;
     }
 
-    @Override
-    public void sort(Comparator<? super E> comparator) {
-        /*
-        `````````````````````````````````
-         */
-    }
-
+    /*
+     * Замена элемента по индексу входящим елементом
+     *
+     * @param - индекс элемента в массиве
+     *        - заменяемый элемент
+     * @return возврат удаленного элемента
+     */
+    @SuppressWarnings("unchecked")
     @Override
     public E set(E e, int index) {
         checkIndex(index);
@@ -109,6 +135,38 @@ public class ArrayListHome<E> implements ListCollection<E> {
         E oldElement = (E) elements[index];
         elements[index] = e;
         return oldElement;
+    }
+
+    /*
+     * Обрезает текущию емкость массива до текущего
+     * размера массива
+     */
+    public void trimToSize() {
+        Object[] elem = new Object[size];
+        copy(elem);
+    }
+
+    /*
+     * @return возврат размера массива
+     */
+    public int size() {
+        return size;
+    }
+
+    /*
+     * @return возврат массива объектов
+     */
+    public Object[] getArray() {
+        return Arrays.copyOf(elements, size);
+    }
+
+    /*
+     * Вывести в консоль текущий массив элементов
+     */
+    public void print() {
+        for (int i = 0; i < size; i++) {
+            System.out.println(elements[i] + ";");
+        }
     }
 
     private void grow(int size) {
@@ -121,29 +179,12 @@ public class ArrayListHome<E> implements ListCollection<E> {
     }
 
     private void copy(Object[] objects) {
-        for (int i = 0; i < size; i++) {
-            objects[i] = elements[i];
-        }
-    }
-
-    public void print() {
-        for (int i = 0; i < elements.length; i++) {
-            System.out.println(elements[i]);
-        }
+        if (size >= 0) System.arraycopy(elements, 0, objects, 0, size);
     }
 
     private void checkIndex(int index) {
         if (index < 0 || index >= elements.length) {
             throw new IndexOutOfBoundsException();
         }
-    }
-
-    public int size() {
-        return size;
-    }
-
-    public void trimToSize(){
-        Object [] elem = new Object[size];
-        copy(elem);
     }
 }
